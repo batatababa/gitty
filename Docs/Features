@@ -1,0 +1,12 @@
+1 - CLI interface
+  - GUI interface swith embedded console
+3 - Changelists
+2 - Single Repo Support
+5 - Multi Repo Support
+4 - Branch Mappings
+  - Modify History
+7 - Handle User Authentication
+6 - Status/Show Commands
+  - Handle Permission Management
+  - merge changes into other branches
+  - rebase branches

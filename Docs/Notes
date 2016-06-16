@@ -1,0 +1,11 @@
+Todo
+ - Make Basic Ember App: One from a tutorial
+
+Concerns
+ - Cross platform is going to be a bit more difficult than originally thought. Will have to consider line endings and possibly different output from Git commands depending on the system...maybe.
+
+Gitty Ideas
+ - have a console window within gitty gui that shows the gitty commands that are being executed. Make this window interactive so the user and execute commands in that window. Be able to pop the console window out into a window.
+ - should have a gitty view of the branches in the command line and ui. I think this can be done by showing branches that aren't merged back into another branch as changelists. 
+ - Gitty control should be done through global CLI. Pull down the Git repo into a location. Map branches to folders on the filesystem. Users can then just make changes to their files, and they will be checked into they branch that they are mapped to.
+ - Changelists can contain files from multiple branches.
