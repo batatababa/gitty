@@ -6,16 +6,15 @@ import (
 	"strings"
 )
 
-// SharedParameters Parameters shared with all commands
 type SharedParameters struct {
-	Flags      FlagSlice
-	Args       ArgumentSlice
-	Opts       OptionSlice
+	Flags      []Flag
+	Args       []Argument
+	ArgSets    []ArgumentSet
+	Opts       []Option
 	PreAction  func(com Command) error
 	PostAction func(com Command) error
 }
 
-//CommandTree Command Tree structure
 type CommandTree struct {
 	Root         Command
 	Shared       SharedParameters
@@ -27,7 +26,6 @@ type CommandTree struct {
 	ToHelpString func(c Command) string
 }
 
-// NewCommandTree Creates a command tree
 func NewCommandTree() (tree CommandTree) {
 	tree.AutoHelp = true
 	tree.ToHelpString = ToHelpString
@@ -45,7 +43,6 @@ var autoHelpArg = Argument{
 	Description: "Show help",
 }
 
-// Run run a command
 func Run(appArgs []string, tree *CommandTree) (err error) {
 	if tree.AutoHelp {
 		tree.Shared.Args = append(tree.Shared.Args, autoHelpArg)
@@ -60,6 +57,7 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 
 	fullCom.Flags = append(fullCom.Flags, tree.Shared.Flags...)
 	fullCom.Args = append(fullCom.Args, tree.Shared.Args...)
+	fullCom.ArgSets = append(fullCom.ArgSets, tree.Shared.ArgSets...)
 	fullCom.Opts = append(fullCom.Opts, tree.Shared.Opts...)
 
 	userCom, err := ParseArgs(appArgs, fullCom)
@@ -71,9 +69,9 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 	if tree.AutoHelp && !userCom.HideHelp {
 		if userCom.hasFlag(autoHelpFlag.ShortName) || userCom.hasFlag(autoHelpFlag.LongName) || userCom.hasArg(autoHelpArg.Value) {
 			if tree.ToHelpString == nil {
-				ToHelpString(fullCom)
+				fmt.Println(ToHelpString(fullCom))
 			} else {
-				tree.ToHelpString(fullCom)
+				fmt.Println(tree.ToHelpString(fullCom))
 			}
 			return nil
 		}
@@ -99,12 +97,11 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 	return nil
 }
 
-// FindCommand find a command
+/*
+* predicate refers to the second half of the command, the piece containing the flags,
+* options, and arguments of the command string.
+ */
 func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err error) {
-	/*
-	* predicate refers to the second half of the command, the piece containing the flags,
-	* options, and arguments of the command string.
-	 */
 	numArgs := len(appArgs)
 
 	if numArgs == 0 {
@@ -151,12 +148,10 @@ func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err erro
 	return
 }
 
-// ParseArgs pasrses args and returns the corresponding command
+// Big ugly function that does the grunt work of the program. It could be split into functions, but as it is
+// they would require a bunch or parameters some of them being pointers and would be just as ugly.
 func ParseArgs(appArgs []string, c Command) (userCom Command, err error) {
-	// Big ugly function that does the grunt work of the program. It could be split into functions, but as it is
-	// they would require a bunch or parameters some of them being pointers and would be just as ugly.
 	predicateStart := 0
-
 	for i, arg := range appArgs {
 		if arg == c.Name {
 			userCom.Name = c.Name
@@ -195,79 +190,104 @@ func ParseArgs(appArgs []string, c Command) (userCom Command, err error) {
 			predLen = len(predicate)
 		}
 
-		// Must be an Option or Flag in Long Form
 		if strings.HasPrefix(argStr, "--") {
-			argStr = argStr[2:]
+			i, err = parseLongForm(predicate, i, c, &userCom)
 
-			if c.hasFlag(argStr) {
-				if !userCom.hasFlag(argStr) {
-					f := Flag{LongName: argStr}
-					userCom.Flags = append(userCom.Flags, f)
-				}
-			} else if c.hasOption(argStr) {
-				if !userCom.hasOption(argStr) {
-					if i+1 >= predLen {
-						return // fix error later option specified with no value
-					}
-					o := Option{LongName: argStr, Value: predicate[i+1]}
-					userCom.Opts = append(userCom.Opts, o)
-					//If the arg was an option we need to move the iterator an extra position
-				}
-				i++
-			} else {
-				errStr := fmt.Sprintf("cli: Long form input --%s not found", argStr)
-				return userCom, errors.New(errStr)
-			}
-			// Must be and Option or Flag in Short Form
 		} else if strings.HasPrefix(argStr, "-") {
-			argStr = argStr[1:]
+			i, err = parseShortForm(predicate, i, c, &userCom)
 
-			// For the case of multiple flags like "tar -xvf"
-			if len(argStr) > 1 {
-				for _, charUtf := range argStr {
-					char := string(charUtf)
-					if c.hasFlag(char) {
-						if !userCom.hasFlag(char) {
-							f := Flag{ShortName: char}
-							userCom.Flags = append(userCom.Flags, f)
-						}
-					} else {
-						errStr := fmt.Sprintf("cli: Short form input -%s not found", argStr)
-						return userCom, errors.New(errStr)
-					}
-				}
-			} else {
-				if c.hasFlag(argStr) {
-					if !userCom.hasFlag(argStr) {
-						f := Flag{ShortName: argStr}
-						userCom.Flags = append(userCom.Flags, f)
-					}
-				} else if c.hasOption(argStr) {
-					if !userCom.hasOption(argStr) {
-						if i+1 >= predLen {
-							errStr := fmt.Sprintf("cli: No value provided for option -%s", argStr)
-							return userCom, errors.New(errStr)
-						}
-						o := Option{ShortName: argStr, Value: predicate[i+1]}
-						userCom.Opts = append(userCom.Opts, o)
-						//If the arg was an option we need to move the iterator an extra position
-					}
-					i++
-				} else {
-					errStr := fmt.Sprintf("cli: Short form input -%s not found", argStr)
-					return userCom, errors.New(errStr)
-				}
-			}
 			// Must be an Argument
 		} else {
 			a := Argument{Value: argStr}
 			userCom.Args = append(userCom.Args, a)
 		}
+
+		if err != nil {
+			return userCom, err
+		}
 	}
+
 	return userCom, nil // nil error
 }
 
-// PrintTree Print Command Tree
+func parseLongForm(predicate []string, pos int, c Command, userCom *Command) (newPos int, err error) {
+	// strip off "--"
+	argStr := predicate[pos][2:]
+	predLen := len(predicate)
+
+	if c.hasFlag(argStr) {
+		if !userCom.hasFlag(argStr) {
+			f := Flag{LongName: argStr}
+			userCom.Flags = append(userCom.Flags, f)
+		}
+	} else if c.hasOption(argStr) {
+		if !userCom.hasOption(argStr) {
+			if pos+1 >= predLen {
+				return // fix error later option specified with no value
+			}
+			o := Option{LongName: argStr, Value: predicate[pos+1]}
+			userCom.Opts = append(userCom.Opts, o)
+			//If the arg was an option we need to move the iterator an extra position
+		}
+		pos++
+	} else {
+		errStr := fmt.Sprintf("cli: Long form input --%s not found", argStr)
+		return newPos, errors.New(errStr)
+	}
+	newPos = pos
+	return newPos, nil
+}
+
+func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (newPos int, err error) {
+	// strip off "-"
+	argStr := predicate[pos][1:]
+	predLen := len(predicate)
+
+	// For the case of multiple flags like "tar -xvf"
+	if len(argStr) > 1 {
+		for _, charUtf := range argStr {
+			char := string(charUtf)
+			if c.hasFlag(char) {
+				if !userCom.hasFlag(char) {
+					f := Flag{ShortName: char}
+					userCom.Flags = append(userCom.Flags, f)
+				}
+			} else {
+				errStr := fmt.Sprintf("cli: Short form input -%s is too Long", argStr)
+				err = errors.New(errStr)
+				return newPos, err
+			}
+		}
+	} else {
+		if c.hasFlag(argStr) {
+			if !userCom.hasFlag(argStr) {
+				f := Flag{ShortName: argStr}
+				userCom.Flags = append(userCom.Flags, f)
+			}
+		} else if c.hasOption(argStr) {
+
+			if !userCom.hasOption(argStr) {
+				if pos+1 >= predLen {
+					errStr := fmt.Sprintf("cli: No value provided for option -%s", argStr)
+					err = errors.New(errStr)
+					return newPos, err
+				}
+				o := Option{ShortName: argStr, Value: predicate[pos+1]}
+				userCom.Opts = append(userCom.Opts, o)
+				//If the arg was an option we need to move the iterator an extra position
+			}
+			pos++
+		} else {
+			errStr := fmt.Sprintf("cli: Short form input -%s not found", argStr)
+			err = errors.New(errStr)
+			return newPos, err
+		}
+	}
+	newPos = pos
+	return newPos, err
+}
+
+// For the case of mul
 func PrintTree(c *Command) {
 	fmt.Printf("%d: %s\n", 0, c.Name)
 	printChildren(c, 0)

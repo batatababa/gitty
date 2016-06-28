@@ -11,18 +11,26 @@ var Clone = &cli.Command{
 // Repo base command
 var Repo = &cli.Command{
 	Name:        "repo",
-	Description: "Add and remove repos from Gitty control.",
+	Description: "Add and remove repos from Gitty control",
 	SubCommands: []cli.Command{*RepoAdd, *RepoRemove},
 }
 
 // RepoAdd command
 var RepoAdd = &cli.Command{
 	Name:        "add",
-	Description: "Registers a repo with Gitty, so it can be maintained.",
+	Description: "Registers a repo with Gitty",
+	Args: []cli.Argument{{
+		Name:        "url/path",
+		Description: "Url or Path of an existing Git Repo",
+	}},
 }
 
 // RepoRemove command
 var RepoRemove = &cli.Command{
 	Name:        "remove",
 	Description: "Un-registers a repo with Gitty",
+	Args: []cli.Argument{{
+		Name:        "url/path",
+		Description: "Url or Path of an existing Git Repo",
+	}},
 }

@@ -17,14 +17,15 @@ gitty pull <branch>
 
 
 #change commands
+gitty commit <cl>
 gitty changelist
-gitty changelist <cl>
 gitty changelist add 
+gitty changelist add <name>
+gitty changelist <cl>
 gitty changelist <cl> add <folder|file>
 gitty changelist <cl> revert <folder|file>
 gitty changelist <cl> move <folder|file> <target cl>
 gitty changelist <cl> commit
-gitty commit <cl>
 
 - Alias chagelist commands with cl
 - remove/revert changed files given just a folder containing applicable files.

@@ -7,7 +7,6 @@ import (
 	"github.com/ryanuber/columnize"
 )
 
-// ToHelpString Get the help for a command as a string
 func ToHelpString(c Command) (help string) {
 	var helpBuf bytes.Buffer
 	config := columnize.DefaultConfig()

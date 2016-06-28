@@ -1,21 +1,21 @@
 package cli
 
-// Flag Flag data structure
+import "fmt"
+
 type Flag struct {
 	ShortName   string
 	LongName    string
 	Description string
 }
 
-// FlagSlice Slice of Flag type def
-type FlagSlice []Flag
+func (flag *Flag) String() string {
+	return fmt.Sprintf("Flg: -%-2s --%-10s, %-s", flag.ShortName, flag.LongName, flag.Description)
+}
 
-func (slice FlagSlice) toColumnArray() (colArr [][]string) {
-	if slice != nil {
-		for _, flag := range slice {
-			colArr = append(colArr, []string{flag.ShortName, flag.LongName, flag.Description})
-		}
+func FlagArrayToStringArray(flagArr []Flag) (strArr []string) {
+	for _, flag := range flagArr {
+		strArr = append(strArr, flag.String())
 	}
 
-	return
+	return strArr
 }

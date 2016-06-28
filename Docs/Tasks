@@ -1,9 +1,2 @@
-Completed:
-Create Gitty CLI to fulfill feature list
-Add base decription of what each command should do
-
-In Progress:
-
-Future:
-Map Gitty CLI to Git Sequences
-Create Stubbed CLI in Rust using ArgParse
+- replace arguments with argument sets
+- don't mess with col array crap. does not matter!
