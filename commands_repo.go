@@ -3,34 +3,28 @@ package main
 import "batatababa/cli"
 
 // Clone command
-var Clone = &cli.Command{
+var Clone = cli.Command{
 	Name:        "clone",
 	Description: "Copies a Git repo from a server. Does this give a default workspace?",
 }
 
 // Repo base command
-var Repo = &cli.Command{
+var Repo = cli.Command{
 	Name:        "repo",
 	Description: "Add and remove repos from Gitty control",
-	SubCommands: []cli.Command{*RepoAdd, *RepoRemove},
+	SubCommands: []cli.Command{RepoAdd, RepoRemove},
 }
 
 // RepoAdd command
-var RepoAdd = &cli.Command{
+var RepoAdd = cli.Command{
 	Name:        "add",
 	Description: "Registers a repo with Gitty",
-	Args: []cli.Argument{{
-		Name:        "url/path",
-		Description: "Url or Path of an existing Git Repo",
-	}},
+	Args:        []cli.Argument{arg_urlOrPath},
 }
 
 // RepoRemove command
-var RepoRemove = &cli.Command{
+var RepoRemove = cli.Command{
 	Name:        "remove",
 	Description: "Un-registers a repo with Gitty",
-	Args: []cli.Argument{{
-		Name:        "url/path",
-		Description: "Url or Path of an existing Git Repo",
-	}},
+	Args:        []cli.Argument{arg_urlOrPath},
 }

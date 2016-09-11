@@ -9,14 +9,13 @@ import (
 )
 
 // Gitty command
-var Gitty = &cli.Command{
+var Gitty = cli.Command{
 	Name:        "gitty",
 	Description: "Making git fun :)",
 	SubCommands: []cli.Command{
-		*Clone,
-		*Repo,
-		*Commit,
-		*Changelist,
+		Clone,
+		Repo,
+		Changelist,
 	},
 }
 
@@ -28,7 +27,7 @@ func main() {
 func runCli(s []string) {
 	tree := cli.NewCommandTree()
 	tree.Author = "Jeff Williams"
-	tree.Root = *Gitty
+	tree.Root = Gitty
 
 	fmt.Println(os.Args)
 	// err := cli.Run(strings.Split("gitty repo add -h", " "), &tree)
@@ -38,6 +37,8 @@ func runCli(s []string) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	cli.PrintTree(&tree.Root)
 }
 
 func toStringArray(s string) []string {

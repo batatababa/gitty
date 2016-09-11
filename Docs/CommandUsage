@@ -1,0 +1,24 @@
+ Usage:
+ gitty move <src_cl> <dest_cl> <dir>
+            <src_cl> <dest_cl> <file>
+            <src_cl> <dest_cl>
+            <?>
+            <cr>
+            <SubCommands>
+
+ SubCommands:
+  thing
+  repo 
+  changelist
+
+ Arguments:
+  ?,                Show help
+  dir,              The name of a directory
+  file,             The name of a file
+  src_cl,           The source changelist
+  dest_cl,          The destination changelis
+
+ Flags:
+  -h  --help,       Show help
+  -v  --verbose,    Print all output
+  -q  --quiet,      Don't print output

@@ -2,76 +2,85 @@ package main
 
 import "batatababa/cli"
 
-var ChangelistArg = &cli.Argument{
-	Name:        "Changelist Number",
-	Description: "Locally unique identifier of a changelist",
-}
-
-var DirFileArg = &cli.Argument{
-	Name:        "Dir | File",
-	Description: "Directory or FileName",
-}
-
-// Clone command
-var Commit = &cli.Command{
-	Name:        "commit",
-	Description: "Commits all changelists to the repo",
-	Args:        []cli.Argument{*ChangelistArg},
-}
-
-// Repo base command
-var Changelist = &cli.Command{
-	Name:        "changelist",
-	Description: "Show all changelists",
-	SubCommands: []cli.Command{*Changelist_add, *Changelist_cl},
-}
+/* Commands in this file:
+gitty changelist create 5
+gitty changelist delete 5
+gitty changelist add 5 file.txt
+gitty changelist remove 5 file.txt
+gitty changelist revert 5
+gitty changelist revert 5 filt.txt
+gitty changelist show 5
+gitty changelist 5
+gitty changelist move 5 file.txt 6
+gitty changelist commit 5
+*/
 
 // RepoAdd command
-var Changelist_add = &cli.Command{
+var Changelist = cli.Command{
+	Name:        "changelist",
+	Description: "Per changelist command set / Show a specific changelist",
+	SubCommands: []cli.Command{
+		cl_create,
+		cl_delete,
+		cl_add,
+		cl_remove,
+		cl_revert,
+		cl_move,
+		cl_show,
+		cl_commit,
+	},
+}
+
+var cl_create = cli.Command{
+	Name:        "create",
+	Description: "Create a changelist",
+	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+}
+
+var cl_delete = cli.Command{
+	Name:        "delete",
+	Description: "Delete a changelist",
+	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+}
+
+var cl_add = cli.Command{
 	Name:        "add",
-	Description: "Create a New changelist",
-	Args: []cli.Argument{{
-		Name:        "name",
-		Description: "The name of new changelist",
+	Description: "Add to a changelist",
+	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+}
+
+var cl_remove = cli.Command{
+	Name:        "remove",
+	Description: "Remove from a changelist",
+	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+}
+
+var cl_revert = cli.Command{
+	Name:        "revert",
+	Description: "Revert files in a changelist",
+	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+}
+
+var cl_move = cli.Command{
+	Name:        "move",
+	Description: "Move files from one changelist to another",
+	ArgSets: []cli.ArgumentSet{{
+		Set: []cli.Argument{
+			arg_srcChangelist,
+			arg_destChangelist,
+			arg_dirOrFile,
+		},
 	}},
 }
 
-// RepoAdd command
-var Changelist_cl = &cli.Command{
-	Name:        "Changelist Number",
-	Description: "Per changelist command set / Show a specific changelist",
-	SubCommands: []cli.Command{
-		*Changelist_cl_add,
-		*Changelist_cl_revert,
-		*Changelist_cl_move,
-		*Changelist_cl_commit,
-	},
-	Wildcard: true,
+var cl_show = cli.Command{
+	Name:        "show",
+	Description: "Revert changes in a changelist",
+	Args:        []cli.Argument{arg_changelist},
 }
 
-var Changelist_cl_add = &cli.Command{
-	Name:        "add",
-	Description: "Add a file or all the files in a directory to a changelist",
-	Args:        []cli.Argument{*DirFileArg},
-}
-
-var Changelist_cl_revert = &cli.Command{
-	Name:        "revert",
-	Description: "Revert all changes in a changelist",
-	Args:        []cli.Argument{*DirFileArg},
-}
-var Changelist_cl_move = &cli.Command{
-	Name:        "move",
-	Description: "Move files from one changelist to another",
-	Args: []cli.Argument{
-		*DirFileArg,
-		{
-			Name:        "destination changelist",
-			Description: "The changelist to move the files to.",
-		},
-	},
-}
-var Changelist_cl_commit = &cli.Command{
+var cl_commit = cli.Command{
 	Name:        "commit",
 	Description: "Commits a changelist to the repo",
+	Args:        []cli.Argument{arg_changelist},
 }
