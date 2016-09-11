@@ -26,8 +26,8 @@ var Changelist = cli.Command{
 		cl_remove,
 		cl_revert,
 		cl_move,
-		cl_show,
 		cl_commit,
+		cl_show,
 	},
 }
 
@@ -51,7 +51,7 @@ var cl_add = cli.Command{
 
 var cl_remove = cli.Command{
 	Name:        "remove",
-	Description: "Remove from a changelist",
+	Description: "Remove files from a changelist",
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
 }
 
@@ -64,23 +64,21 @@ var cl_revert = cli.Command{
 var cl_move = cli.Command{
 	Name:        "move",
 	Description: "Move files from one changelist to another",
-	ArgSets: []cli.ArgumentSet{{
-		Set: []cli.Argument{
-			arg_srcChangelist,
-			arg_destChangelist,
-			arg_dirOrFile,
-		},
-	}},
-}
-
-var cl_show = cli.Command{
-	Name:        "show",
-	Description: "Revert changes in a changelist",
-	Args:        []cli.Argument{arg_changelist},
+	Args: []cli.Argument{
+		arg_srcChangelist,
+		arg_destChangelist,
+		arg_dirOrFile,
+	},
 }
 
 var cl_commit = cli.Command{
 	Name:        "commit",
 	Description: "Commits a changelist to the repo",
+	Args:        []cli.Argument{arg_changelist},
+}
+
+var cl_show = cli.Command{
+	Name:        "show",
+	Description: "Revert changes in a changelist",
 	Args:        []cli.Argument{arg_changelist},
 }

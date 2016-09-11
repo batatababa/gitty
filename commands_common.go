@@ -33,11 +33,11 @@ var arg_sourceBranch = cli.Argument{
 }
 
 var arg_srcChangelist = cli.Argument{
-	Name:        "src_changelist",
+	Name:        "source_changelist",
 	Description: "Name of a changelist",
 }
 
 var arg_destChangelist = cli.Argument{
-	Name:        "dest_changelist",
+	Name:        "destination_changelist",
 	Description: "Name of a changelist",
 }

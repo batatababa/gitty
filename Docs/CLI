@@ -17,11 +17,10 @@ gitty pull <branch>
 
 
 #change commands
-gitty changelist
-gitty changelist add 
-gitty changelist add <name>
-gitty changelist <cl>
-gitty changelist add <cl> <folder|file> 
+gitty changelist create <cl> -n "name"
+gitty changelist delete <cl>
+gitty changelist add <cl>  <folder|file>
+gitty changelist remove <cl> <folder|file>
 gitty changelist revert <cl> <folder|file>
 gitty changelist move <src cl> <dst cl> <folder|file>
 gitty changelist commit <cl>
@@ -30,8 +29,8 @@ gitty changelist commit <cl>
 - remove/revert changed files given just a folder containing applicable files.
 
 #history commands
-gitty history remove <changelist>
-gitty history insert <changelist>
+gitty history remove <cl>
+gitty history insert <cl>
 gitty log <branch> -u <user> -f <folder/file>
 
 #Diff commands
