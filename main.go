@@ -8,7 +8,7 @@ import (
 
 	"github.com/ryanuber/columnize"
 
-	"batatababa/cli"
+	"github.com/batatababa/cli"
 )
 
 // Gitty command
@@ -47,32 +47,26 @@ func toStringArray(s string) []string {
 	return strings.Split(s, " ")
 }
 
-func toHelpString(c cli.Command) (help string) {
+func toHelpString(c cli.Command, pathToRoot []string) (help string) {
 	var helpBuf bytes.Buffer
 	config := columnize.DefaultConfig()
 	config.Prefix = "  "
 
-	helpBuf.WriteString(fmt.Sprintf("%s: %s\n", c.Name, c.Description))
+	helpBuf.WriteString(fmt.Sprintf("Description: %s\n", c.Description))
 
 	if c.Usage == "" {
 		helpBuf.WriteString(fmt.Sprintf("Usage: %s ", c.Name))
 
 		if c.Args != nil {
 			for _, a := range c.Args {
-				helpBuf.WriteString(fmt.Sprintf("<%s> ", a.Name))
+				if a.Name != "?" {
+					helpBuf.WriteString(fmt.Sprintf("<%s> ", a.Name))
+				}
 			}
 			helpBuf.WriteString("\n\n")
 		}
-	}
-
-	if c.SubCommands != nil {
-		helpBuf.WriteString(" SubCommands:\n")
-		var subs []string
-		for _, s := range c.SubCommands {
-			subs = append(subs, fmt.Sprintf("%s:|%s", s.Name, s.Description))
-		}
-		helpBuf.WriteString(columnize.Format(subs, config))
-		helpBuf.WriteString("\n\n")
+	} else {
+		helpBuf.WriteString(fmt.Sprintf("Usage: %s\n\n", c.Usage))
 	}
 
 	if c.Args != nil {
@@ -104,6 +98,17 @@ func toHelpString(c cli.Command) (help string) {
 		helpBuf.WriteString(columnize.Format(opts, config))
 		helpBuf.WriteString("\n\n")
 	}
+
+	if c.SubCommands != nil {
+		helpBuf.WriteString(" SubCommands:\n")
+		var subs []string
+		for _, s := range c.SubCommands {
+			subs = append(subs, fmt.Sprintf("%s:|%s", s.Name, s.Description))
+		}
+		helpBuf.WriteString(columnize.Format(subs, config))
+		helpBuf.WriteString("\n")
+	}
+
 	help = helpBuf.String()
 	return
 }

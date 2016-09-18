@@ -1,22 +1,26 @@
 package main
 
-import "batatababa/cli"
+import "github.com/batatababa/cli"
 
 var arg_urlOrPath = cli.Argument{
 	Name:        "url:path",
-	Description: "Url or Path of an existing Git Repo",
+	Description: "Url or Path of an existing Git repo",
 }
 
 var arg_changelist = cli.Argument{
-	Name:        "changelist",
+	Name:        "cl",
 	Description: "Locally unique identifier of a changelist",
 }
 
 var arg_dirOrFile = cli.Argument{
 	Name:        "dir:file",
-	Description: "Directory or FileName",
+	Description: "Directory or file name",
 }
 
+var arg_dirOrFile_optional = cli.Argument{
+	Name:        "dir:file",
+	Description: "(Optional) Directory or file name",
+}
 var arg_branch = cli.Argument{
 	Name:        "branch",
 	Description: "Name of a branch",

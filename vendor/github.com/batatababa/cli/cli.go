@@ -23,7 +23,7 @@ type CommandTree struct {
 	Email        string
 	Version      string
 	AutoHelp     bool
-	ToHelpString func(c Command) string
+	ToHelpString func(c Command, pathToCom []string) string
 }
 
 func NewCommandTree() (tree CommandTree) {
@@ -49,7 +49,7 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 		tree.Shared.Flags = append(tree.Shared.Flags, autoHelpFlag)
 	}
 
-	fullCom, err := tree.FindCommand(appArgs)
+	fullCom, pathToCom, err := tree.FindCommand(appArgs)
 
 	if err != nil {
 		return err
@@ -68,10 +68,15 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 
 	if tree.AutoHelp && !userCom.HideHelp {
 		if userCom.hasFlag(autoHelpFlag.ShortName) || userCom.hasFlag(autoHelpFlag.LongName) || userCom.hasArg(autoHelpArg.Value) {
+			helpStr := ""
 			if tree.ToHelpString == nil {
-				fmt.Println(ToHelpString(fullCom))
+				helpStr = ToHelpString(fullCom, pathToCom)
 			} else {
-				fmt.Println(tree.ToHelpString(fullCom))
+				helpStr = tree.ToHelpString(fullCom, pathToCom)
+			}
+
+			if helpStr != "" {
+				fmt.Println(helpStr)
 			}
 			return nil
 		}
@@ -101,11 +106,12 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 * predicate refers to the second half of the command, the piece containing the flags,
 * options, and arguments of the command string.
  */
-func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err error) {
+func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, pathToCom []string, err error) {
 	numArgs := len(appArgs)
 
 	if numArgs == 0 {
-		return fullCom, errors.New("cli: No arguments provided")
+		err = errors.New("cli: No arguments provided")
+		return fullCom, pathToCom, err
 	}
 
 	curCommand := &tree.Root
@@ -113,8 +119,11 @@ func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err erro
 
 	if curCommand.Name != curArg {
 		errStr := fmt.Sprintf("cli: Command %s not found", curCommand.Name)
-		return fullCom, errors.New(errStr)
+		err = errors.New(errStr)
+		return fullCom, pathToCom, err
 	}
+
+	pathToCom = append(pathToCom, curArg)
 
 	predBegin := 0
 
@@ -134,6 +143,7 @@ func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err erro
 			if curArg == curSub.Name {
 				curCommand = curSub
 				argFound = true
+				pathToCom = append(pathToCom, curArg)
 				break
 			}
 		}
@@ -142,10 +152,13 @@ func (tree CommandTree) FindCommand(appArgs []string) (fullCom Command, err erro
 			break
 		}
 	}
+	if pathToCom != nil {
+		pathToCom = pathToCom[:len(pathToCom)-1]
+	}
 
 	fullCom = *curCommand
 
-	return
+	return fullCom, pathToCom, err
 }
 
 // Big ugly function that does the grunt work of the program. It could be split into functions, but as it is
@@ -286,22 +299,81 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 	return newPos, err
 }
 
+type Node struct {
+	Command
+	level int
+}
+
 // For the case of mul
 func PrintTree(c *Command) {
-	fmt.Printf("%d: %s\n", 0, c.Name)
-	printChildren(c, 0)
-}
+	slice := CommandToNodeSlice(c)
 
-func printChildren(c *Command, level int) {
-	level++
-	subCount := len(c.SubCommands)
-	for j := 0; j < subCount; j++ {
-		curSub := &c.SubCommands[j] // pointer to a command
-
-		for j := 0; j < level; j++ {
+	for _, node := range slice {
+		for j := 0; j < node.level; j++ {
 			fmt.Printf("  ")
 		}
-		fmt.Printf("%d: %s\n", level, curSub.Name)
-		printChildren(curSub, level)
+		fmt.Printf("%d: %s\n", node.level, node.Name)
 	}
 }
+
+// For the case of mul
+func PrintTreeHelp(c *Command) {
+	slice := CommandToNodeSlice(c)
+
+	for _, node := range slice {
+		fmt.Printf("--------------------------------------------\n")
+		fmt.Printf("\"%s\"\n", ToHelpString(node.Command, nil))
+	}
+}
+
+func addChildrenToSlice(n *Node, slice *[]Node) {
+	subCount := len(n.SubCommands)
+	for i := 0; i < subCount; i++ {
+		child := Node{n.SubCommands[i], n.level + 1} // pointer to a command
+
+		*slice = append(*slice, child)
+		addChildrenToSlice(&child, slice)
+	}
+}
+
+func CommandToNodeSlice(c *Command) (slice []Node) {
+	slice = append(slice, Node{*c, 0})
+	addChildrenToSlice(&slice[0], &slice)
+
+	return slice
+}
+
+// type Iterable interface {
+// 	Next() (int, interface{})
+// 	Prev() (int, interface{})
+// 	First() (int, interface{})
+// }
+
+// func GetIterator(iable Iterable) Iterable {
+// 	slice := s.ToSlice()
+// 	index := -1
+// 	size := len(slice)
+
+// 	return Iterable{
+// 		Next: func() (int, interface{}) {
+// 			index++
+// 			if index == size {
+// 				return 0, nil
+// 			} else {
+// 				return index, slice[index]
+// 			}
+// 		},
+// 		Prev: func() (int, interface{}) {
+// 			if index <= 0 {
+// 				return 0, nil
+// 			} else {
+// 				index--
+// 				return index, slice[index]
+// 			}
+// 		},
+// 		First: func() (int, interface{}) {
+// 			index = 0
+// 			return index, slice[index]
+// 		},
+// 	}
+// }

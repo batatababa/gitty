@@ -1,6 +1,6 @@
 package main
 
-import "batatababa/cli"
+import "github.com/batatababa/cli"
 
 // Clone command
 var Clone = cli.Command{

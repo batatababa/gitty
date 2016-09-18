@@ -1,6 +1,10 @@
 package main
 
-import "batatababa/cli"
+import (
+	"fmt"
+
+	"github.com/batatababa/cli"
+)
 
 /* Commands in this file:
 gitty changelist create 5
@@ -29,12 +33,16 @@ var Changelist = cli.Command{
 		cl_commit,
 		cl_show,
 	},
+	Usage: fmt.Sprintf(`changelist <%s>
+       changelist <%s>
+       changelist <%s>`, arg_changelist.Name, arg_dirOrFile.Name, cl_arg_carriageReturn.Name),
+	Args: []cli.Argument{arg_changelist, arg_dirOrFile, cl_arg_carriageReturn},
 }
 
 var cl_create = cli.Command{
 	Name:        "create",
 	Description: "Create a changelist",
-	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+	Args:        []cli.Argument{arg_changelist, cl_arg_carriageReturn},
 }
 
 var cl_delete = cli.Command{
@@ -45,7 +53,7 @@ var cl_delete = cli.Command{
 
 var cl_add = cli.Command{
 	Name:        "add",
-	Description: "Add to a changelist",
+	Description: "Add filesto a changelist",
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
 }
 
@@ -71,14 +79,19 @@ var cl_move = cli.Command{
 	},
 }
 
+var cl_arg_carriageReturn = cli.Argument{
+	Name:        "cr",
+	Description: "(Carriage Return) Show all changelists",
+}
+
 var cl_commit = cli.Command{
 	Name:        "commit",
-	Description: "Commits a changelist to the repo",
+	Description: "Commit a changelist to the repo",
 	Args:        []cli.Argument{arg_changelist},
 }
 
 var cl_show = cli.Command{
 	Name:        "show",
-	Description: "Revert changes in a changelist",
+	Description: "Show files in a changelist(s)",
 	Args:        []cli.Argument{arg_changelist},
 }

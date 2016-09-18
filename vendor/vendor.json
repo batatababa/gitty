@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "ecexxy37wp9v1k8J9L+WM8fOaOM=",
+			"path": "github.com/batatababa/cli",
+			"revision": "03c51fe19e918b930629242f023044e3855c2927",
+			"revisionTime": "2016-09-18T02:48:53Z"
+		},
+		{
+			"checksumSHA1": "kH9SzL77hzya1KSvkkVfGmbBtmM=",
+			"path": "github.com/ryanuber/columnize",
+			"revision": "983d3a5fab1bf04d1b412465d2d9f8430e2e917e",
+			"revisionTime": "2015-09-15T23:29:42Z"
+		}
+	],
+	"rootPath": "github.com/batatababa/gitty"
+}

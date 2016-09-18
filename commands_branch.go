@@ -1,6 +1,6 @@
 package main
 
-import "batatababa/cli"
+import "github.com/batatababa/cli"
 
 /* Commands in this file:
 gitty changelist create 5
