@@ -2,27 +2,26 @@ package main
 
 import "github.com/batatababa/cli"
 
-/* Commands in this file:
-gitty changelist create 5
-gitty changelist delete 5
-gitty changelist add 5 file.txt
-gitty changelist remove 5 file.txt
-gitty changelist revert 5
-gitty changelist revert 5 filt.txt
-gitty changelist show 5
-gitty changelist 5
-gitty changelist move 5 file.txt 6
-gitty changelist commit 5
-*/
-// var ChangelistArg = cli.Argument{
-//     Name:        "changelist",
-//     Description: "Locally unique identifier of a changelist",
-// }
+//#branch commands
+//gitty map
+//- Shows all of the "Branch Mappings" that Gitty knows about
+//- Branches are shown with a reference # that can be used anywhere a branch
+//is expected
+//gitty map <branch> <path>
+//- Maps a branch to a location on the file system
+//gitty map remove <branch>
+//- Removes a "Branch Mapping"
+//gitty branch <source branch> <target branch>
+//- Creates a branch
+//gitty pull
+//- Updates the repo and attempts to merge changes into all branches
+//gitty pull <branch>
+//- Updates the repo and attempts to merge changes into target branch
 
-// var DirFileArg = cli.Argument{
-//     Name:        "dir|file",
-//     Description: "Directory or FileName",
-// }
+var map_arg_cr_show = cli.Argument{
+	Name:        "cr",
+	Description: "Show branch mappings",
+}
 
 // RepoAdd command
 var Map = cli.Command{

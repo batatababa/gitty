@@ -6,9 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ryanuber/columnize"
-
 	"github.com/batatababa/cli"
+	"github.com/ryanuber/columnize"
 )
 
 // Gitty command
@@ -18,6 +17,7 @@ var Gitty = cli.Command{
 	SubCommands: []cli.Command{
 		Clone,
 		Repo,
+		Map,
 		Changelist,
 	},
 }
@@ -34,13 +34,14 @@ func runCli(s []string) {
 	tree.ToHelpString = toHelpString
 
 	// fmt.Println(os.Args)
+
 	// err := cli.Run(strings.Split("gitty repo add -h", " "), &tree)
+	cli.PrintTreeHelp(&tree)
+	// err := cli.Run(s, &tree)
 
-	err := cli.Run(s, &tree)
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 }
 
 func toStringArray(s string) []string {
@@ -52,21 +53,32 @@ func toHelpString(c cli.Command, pathToRoot []string) (help string) {
 	config := columnize.DefaultConfig()
 	config.Prefix = "  "
 
-	helpBuf.WriteString(fmt.Sprintf("Description: %s\n", c.Description))
+	if len(pathToRoot) != 0 {
+		helpBuf.WriteString(fmt.Sprintf(" %s", strings.Join(pathToRoot, " ")))
+	}
+
+	helpBuf.WriteString(fmt.Sprintf(" [%s]\n", c.Name))
+	helpBuf.WriteString(fmt.Sprintf(" Description: %s\n", c.Description))
 
 	if c.Usage == "" {
-		helpBuf.WriteString(fmt.Sprintf("Usage: %s ", c.Name))
-
 		if c.Args != nil {
+			helpBuf.WriteString(fmt.Sprintf(" Usage:\n"))
 			for _, a := range c.Args {
 				if a.Name != "?" {
-					helpBuf.WriteString(fmt.Sprintf("<%s> ", a.Name))
+					helpBuf.WriteString(fmt.Sprintf("  %s <%s>\n", c.Name, a.Name))
 				}
 			}
-			helpBuf.WriteString("\n\n")
+			helpBuf.WriteString("\n")
 		}
 	} else {
-		helpBuf.WriteString(fmt.Sprintf("Usage: %s\n\n", c.Usage))
+		helpBuf.WriteString(fmt.Sprintf(" Usage:\n"))
+
+		usageSl := strings.Split(c.Usage, "|")
+
+		for _, usageSet := range usageSl {
+			helpBuf.WriteString(fmt.Sprintf("  %s %s\n", c.Name, usageSet))
+		}
+		helpBuf.WriteString("\n")
 	}
 
 	if c.Args != nil {

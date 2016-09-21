@@ -301,7 +301,8 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 
 type Node struct {
 	Command
-	level int
+	Level     int
+	PathToCom []string
 }
 
 // For the case of mul
@@ -309,27 +310,30 @@ func PrintTree(c *Command) {
 	slice := CommandToNodeSlice(c)
 
 	for _, node := range slice {
-		for j := 0; j < node.level; j++ {
+		for j := 0; j < node.Level; j++ {
 			fmt.Printf("  ")
 		}
-		fmt.Printf("%d: %s\n", node.level, node.Name)
+		fmt.Printf("%d: %s\n", node.Level, node.Name)
 	}
 }
 
 // For the case of mul
-func PrintTreeHelp(c *Command) {
-	slice := CommandToNodeSlice(c)
+func PrintTreeHelp(t *CommandTree) {
+	slice := CommandToNodeSlice(&t.Root)
 
 	for _, node := range slice {
 		fmt.Printf("--------------------------------------------\n")
-		fmt.Printf("\"%s\"\n", ToHelpString(node.Command, nil))
+		fmt.Printf("\"\n%s\"\n", t.ToHelpString(node.Command, node.PathToCom))
 	}
 }
 
 func addChildrenToSlice(n *Node, slice *[]Node) {
+	pathToNode := append([]string(nil), n.PathToCom...)
+	pathToNode = append(pathToNode, n.Name)
+
 	subCount := len(n.SubCommands)
 	for i := 0; i < subCount; i++ {
-		child := Node{n.SubCommands[i], n.level + 1} // pointer to a command
+		child := Node{n.SubCommands[i], n.Level + 1, pathToNode} // pointer to a command
 
 		*slice = append(*slice, child)
 		addChildrenToSlice(&child, slice)
@@ -337,7 +341,7 @@ func addChildrenToSlice(n *Node, slice *[]Node) {
 }
 
 func CommandToNodeSlice(c *Command) (slice []Node) {
-	slice = append(slice, Node{*c, 0})
+	slice = append(slice, Node{*c, 0, make([]string, 0, 10)})
 	addChildrenToSlice(&slice[0], &slice)
 
 	return slice

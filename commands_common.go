@@ -8,13 +8,18 @@ var arg_urlOrPath = cli.Argument{
 }
 
 var arg_changelist = cli.Argument{
-	Name:        "cl",
+	Name:        "cl-num",
 	Description: "Locally unique identifier of a changelist",
 }
 
 var arg_dirOrFile = cli.Argument{
 	Name:        "dir:file",
 	Description: "Directory or file name",
+}
+
+var arg_repoNum = cli.Argument{
+	Name:        "r-num",
+	Description: "Unique identifier for a repo",
 }
 
 var arg_dirOrFile_optional = cli.Argument{
@@ -37,11 +42,11 @@ var arg_sourceBranch = cli.Argument{
 }
 
 var arg_srcChangelist = cli.Argument{
-	Name:        "source_changelist",
-	Description: "Name of a changelist",
+	Name:        "src_cl",
+	Description: "Source changelist",
 }
 
 var arg_destChangelist = cli.Argument{
-	Name:        "destination_changelist",
-	Description: "Name of a changelist",
+	Name:        "dst_cl",
+	Description: "Destination changelist",
 }

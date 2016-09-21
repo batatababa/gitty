@@ -33,55 +33,52 @@ var Changelist = cli.Command{
 		cl_commit,
 		cl_show,
 	},
-	Usage: fmt.Sprintf(`changelist <%s>
-       changelist <%s>
-       changelist <%s>`, arg_changelist.Name, arg_dirOrFile.Name, cl_arg_carriageReturn.Name),
-	Args: []cli.Argument{arg_changelist, arg_dirOrFile, cl_arg_carriageReturn},
+	Usage: fmt.Sprintf("<%s>|<%s>|<%s>", arg_changelist.Name, arg_dirOrFile.Name, cl_arg_cr_show_all.Name),
+	Args:  []cli.Argument{arg_changelist, arg_dirOrFile, cl_arg_cr_show_all},
 }
 
 var cl_create = cli.Command{
 	Name:        "create",
 	Description: "Create a changelist",
-	Args:        []cli.Argument{arg_changelist, cl_arg_carriageReturn},
+	Args:        []cli.Argument{cl_arg_create_named, cl_arg_cr_create},
 }
 
 var cl_delete = cli.Command{
 	Name:        "delete",
 	Description: "Delete a changelist",
-	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+	Args:        []cli.Argument{arg_changelist},
 }
 
 var cl_add = cli.Command{
 	Name:        "add",
-	Description: "Add filesto a changelist",
+	Description: "Add files to a changelist",
+	Usage:       fmt.Sprintf("<%s> <%s>", arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
 }
 
 var cl_remove = cli.Command{
 	Name:        "remove",
 	Description: "Remove files from a changelist",
+	Usage:       fmt.Sprintf("<%s> <%s>", arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
 }
 
 var cl_revert = cli.Command{
 	Name:        "revert",
-	Description: "Revert files in a changelist",
+	Description: "Revert a changelist or files in a changelist",
+	Usage:       fmt.Sprintf("<%s> |<%s> <%s>", arg_changelist.Name, arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
 }
 
 var cl_move = cli.Command{
 	Name:        "move",
 	Description: "Move files from one changelist to another",
+	Usage:       fmt.Sprintf("<%s> <%s> <%s>", arg_srcChangelist.Name, arg_destChangelist.Name, arg_dirOrFile.Name),
 	Args: []cli.Argument{
 		arg_srcChangelist,
 		arg_destChangelist,
 		arg_dirOrFile,
 	},
-}
-
-var cl_arg_carriageReturn = cli.Argument{
-	Name:        "cr",
-	Description: "(Carriage Return) Show all changelists",
 }
 
 var cl_commit = cli.Command{
@@ -94,4 +91,18 @@ var cl_show = cli.Command{
 	Name:        "show",
 	Description: "Show files in a changelist(s)",
 	Args:        []cli.Argument{arg_changelist},
+}
+
+var cl_arg_cr_show_all = cli.Argument{
+	Name:        "rtn",
+	Description: "(Carriage Return) Show all changelists",
+}
+var cl_arg_cr_create = cli.Argument{
+	Name:        "rtn",
+	Description: "(Carriage Return) Create a changelist with an auto-generated name",
+}
+
+var cl_arg_create_named = cli.Argument{
+	Name:        "name",
+	Description: "Create a changelist with the specified name",
 }

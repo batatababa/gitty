@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "ecexxy37wp9v1k8J9L+WM8fOaOM=",
+			"checksumSHA1": "TRa74e7OK6+R3xtNURuLqde287A=",
 			"path": "github.com/batatababa/cli",
-			"revision": "03c51fe19e918b930629242f023044e3855c2927",
-			"revisionTime": "2016-09-18T02:48:53Z"
+			"revision": "766c6d6310033a4b3d57138a34fb997b74b147c0",
+			"revisionTime": "2016-09-18T15:38:40Z"
 		},
 		{
 			"checksumSHA1": "kH9SzL77hzya1KSvkkVfGmbBtmM=",

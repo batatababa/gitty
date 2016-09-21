@@ -6,6 +6,7 @@ import "github.com/batatababa/cli"
 var Clone = cli.Command{
 	Name:        "clone",
 	Description: "Copies a Git repo from a server. Does this give a default workspace?",
+	Args:        []cli.Argument{arg_urlOrPath},
 }
 
 // Repo base command
@@ -26,5 +27,5 @@ var RepoAdd = cli.Command{
 var RepoRemove = cli.Command{
 	Name:        "remove",
 	Description: "Un-registers a repo with Gitty",
-	Args:        []cli.Argument{arg_urlOrPath},
+	Args:        []cli.Argument{arg_repoNum},
 }
