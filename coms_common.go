@@ -2,6 +2,7 @@ package main
 
 import "github.com/batatababa/cli"
 
+/* Arguments */
 var arg_urlOrPath = cli.Argument{
 	Name:        "url:path",
 	Description: "Url or Path of an existing Git repo",
@@ -12,9 +13,19 @@ var arg_changelist = cli.Argument{
 	Description: "Locally unique identifier of a changelist",
 }
 
+var arg_map = cli.Argument{
+	Name:        "map-num",
+	Description: "Locally unique identifier of a map",
+}
+
 var arg_dirOrFile = cli.Argument{
 	Name:        "dir:file",
 	Description: "Directory or file name",
+}
+
+var arg_dir = cli.Argument{
+	Name:        "dir",
+	Description: "Directory path",
 }
 
 var arg_repoNum = cli.Argument{
@@ -28,17 +39,7 @@ var arg_dirOrFile_optional = cli.Argument{
 }
 var arg_branch = cli.Argument{
 	Name:        "branch",
-	Description: "Name of a branch",
-}
-
-var arg_targetBranch = cli.Argument{
-	Name:        "target_branch",
-	Description: "Name of a branch",
-}
-
-var arg_sourceBranch = cli.Argument{
-	Name:        "source_branch",
-	Description: "Name of a branch",
+	Description: "Name or ID of a branch",
 }
 
 var arg_srcChangelist = cli.Argument{

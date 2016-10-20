@@ -6,21 +6,8 @@ import (
 	"github.com/batatababa/cli"
 )
 
-/* Commands in this file:
-gitty changelist create 5
-gitty changelist delete 5
-gitty changelist add 5 file.txt
-gitty changelist remove 5 file.txt
-gitty changelist revert 5
-gitty changelist revert 5 filt.txt
-gitty changelist show 5
-gitty changelist 5
-gitty changelist move 5 file.txt 6
-gitty changelist commit 5
-*/
-
-// RepoAdd command
-var Changelist = cli.Command{
+/* Command Sets*/
+var changelist = cli.Command{
 	Name:        "changelist",
 	Description: "Per changelist command set / Show a specific changelist",
 	SubCommands: []cli.Command{
@@ -33,20 +20,24 @@ var Changelist = cli.Command{
 		cl_commit,
 		cl_show,
 	},
-	Usage: fmt.Sprintf("<%s>|<%s>|<%s>", arg_changelist.Name, arg_dirOrFile.Name, cl_arg_cr_show_all.Name),
-	Args:  []cli.Argument{arg_changelist, arg_dirOrFile, cl_arg_cr_show_all},
+	Usage:  fmt.Sprintf("<%s>|<%s>|<%s>", arg_changelist.Name, arg_dirOrFile.Name, arg_cl_rtnShowAll.Name),
+	Args:   []cli.Argument{arg_changelist, arg_dirOrFile, arg_cl_rtnShowAll},
+	Action: action_clShow,
 }
 
+/* Commands */
 var cl_create = cli.Command{
 	Name:        "create",
 	Description: "Create a changelist",
-	Args:        []cli.Argument{cl_arg_create_named, cl_arg_cr_create},
+	Args:        []cli.Argument{arg_cl_createNamed, arg_cl_rtnCreate},
+	Action:      action_clCreate,
 }
 
 var cl_delete = cli.Command{
 	Name:        "delete",
 	Description: "Delete a changelist",
 	Args:        []cli.Argument{arg_changelist},
+	Action:      action_clDelete,
 }
 
 var cl_add = cli.Command{
@@ -54,6 +45,7 @@ var cl_add = cli.Command{
 	Description: "Add files to a changelist",
 	Usage:       fmt.Sprintf("<%s> <%s>", arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+	Action:      action_clAdd,
 }
 
 var cl_remove = cli.Command{
@@ -61,6 +53,7 @@ var cl_remove = cli.Command{
 	Description: "Remove files from a changelist",
 	Usage:       fmt.Sprintf("<%s> <%s>", arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+	Action:      action_clRemove,
 }
 
 var cl_revert = cli.Command{
@@ -68,6 +61,7 @@ var cl_revert = cli.Command{
 	Description: "Revert a changelist or files in a changelist",
 	Usage:       fmt.Sprintf("<%s> |<%s> <%s>", arg_changelist.Name, arg_changelist.Name, arg_dirOrFile.Name),
 	Args:        []cli.Argument{arg_changelist, arg_dirOrFile},
+	Action:      action_clRevert,
 }
 
 var cl_move = cli.Command{
@@ -79,30 +73,35 @@ var cl_move = cli.Command{
 		arg_destChangelist,
 		arg_dirOrFile,
 	},
+	Action: action_clMove,
 }
 
 var cl_commit = cli.Command{
 	Name:        "commit",
 	Description: "Commit a changelist to the repo",
 	Args:        []cli.Argument{arg_changelist},
+	Action:      action_clCommit,
 }
 
 var cl_show = cli.Command{
 	Name:        "show",
 	Description: "Show files in a changelist(s)",
 	Args:        []cli.Argument{arg_changelist},
+	Action:      action_clShow,
 }
 
-var cl_arg_cr_show_all = cli.Argument{
+/* Arguments */
+var arg_cl_rtnShowAll = cli.Argument{
 	Name:        "rtn",
-	Description: "(Carriage Return) Show all changelists",
-}
-var cl_arg_cr_create = cli.Argument{
-	Name:        "rtn",
-	Description: "(Carriage Return) Create a changelist with an auto-generated name",
+	Description: "Carriage Return - Show all changelists",
 }
 
-var cl_arg_create_named = cli.Argument{
+var arg_cl_rtnCreate = cli.Argument{
+	Name:        "rtn",
+	Description: "Carriage Return - Create a changelist with an auto-generated name",
+}
+
+var arg_cl_createNamed = cli.Argument{
 	Name:        "name",
 	Description: "Create a changelist with the specified name",
 }

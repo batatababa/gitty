@@ -4,25 +4,57 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
 
 	"github.com/batatababa/cli"
 	"github.com/ryanuber/columnize"
 )
 
+type config struct {
+	appFolder string
+	appDir    string
+}
+
+func newConfig() (c config) {
+	c.appFolder = ".gitty"
+
+	usr, err := user.Current()
+	if err != nil {
+		os.Exit(1)
+	}
+
+	c.appDir = usr.HomeDir + "/" + c.appFolder
+	return c
+}
+
+var globals config
+
+func initGitty(c config) {
+	if _, err := os.Stat(c.appDir); os.IsNotExist(err) {
+		if os.Mkdir(c.appDir, 0755) != nil {
+			fmt.Println("Unable to create Gitty directory")
+		}
+	}
+}
+
 // Gitty command
 var Gitty = cli.Command{
 	Name:        "gitty",
 	Description: "Making git fun :)",
 	SubCommands: []cli.Command{
-		Clone,
-		Repo,
-		Map,
-		Changelist,
+		clone,
+		repo,
+		branch,
+		branchMap,
+		changelist,
 	},
 }
 
 func main() {
+	globals = newConfig()
+	initGitty(globals)
+
 	runCli(os.Args)
 	// runCli(toStringArray("gitty repo -h"))
 }
@@ -33,15 +65,10 @@ func runCli(s []string) {
 	tree.Root = Gitty
 	tree.ToHelpString = toHelpString
 
-	// fmt.Println(os.Args)
+	//err := cli.Run(strings.Split("gitty repo adsfasdf", " "), &tree)
+	//cli.PrintTree(&tree.Root)
 
-	// err := cli.Run(strings.Split("gitty repo add -h", " "), &tree)
-	cli.PrintTreeHelp(&tree)
-	// err := cli.Run(s, &tree)
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	cli.Run(s, &tree)
 }
 
 func toStringArray(s string) []string {

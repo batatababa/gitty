@@ -7,10 +7,14 @@ gitty clone <repo url|path>
   - When a repo is cloned with Gitty, it is "registered" and may be maintained
     by Gitty
 
+gitty repo 
+  - "Show all of the repos maintained "
 gitty repo add <repo url>
   - "Registers" a repo with Gitty, so that it can be maintained by Gitty 
 gitty repo remove <repo #>
   - "Un-registers" a repo with Gitty
+gitty repo active <repo #>
+  - "Set the which repo is active"
 
 #branch commands 
 gitty map
@@ -69,6 +73,4 @@ gitty diff <file #>
 
 - Diffs with no revision specified imply the diff is against HEAD
 - Need to be able to diff against HEAD, PREV, or REV #
-- Diff commandsed needs more though. Making the CLI easy to use will be a bit 
-more complicated than originally thought.
- 
+- Diff commandset needs more functioinality? 

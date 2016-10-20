@@ -43,7 +43,7 @@ var autoHelpArg = Argument{
 	Description: "Show help",
 }
 
-func Run(appArgs []string, tree *CommandTree) (err error) {
+func Run(appArgs []string, tree *CommandTree) {
 	if tree.AutoHelp {
 		tree.Shared.Args = append(tree.Shared.Args, autoHelpArg)
 		tree.Shared.Flags = append(tree.Shared.Flags, autoHelpFlag)
@@ -52,7 +52,8 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 	fullCom, pathToCom, err := tree.FindCommand(appArgs)
 
 	if err != nil {
-		return err
+		fmt.Println(err.Error())
+		return
 	}
 
 	fullCom.Flags = append(fullCom.Flags, tree.Shared.Flags...)
@@ -63,43 +64,55 @@ func Run(appArgs []string, tree *CommandTree) (err error) {
 	userCom, err := ParseArgs(appArgs, fullCom)
 
 	if err != nil {
-		return err
+		fmt.Println(err.Error())
+		return
 	}
 
 	if tree.AutoHelp && !userCom.HideHelp {
 		if userCom.hasFlag(autoHelpFlag.ShortName) || userCom.hasFlag(autoHelpFlag.LongName) || userCom.hasArg(autoHelpArg.Value) {
-			helpStr := ""
-			if tree.ToHelpString == nil {
-				helpStr = ToHelpString(fullCom, pathToCom)
-			} else {
-				helpStr = tree.ToHelpString(fullCom, pathToCom)
-			}
+			tree.ShowHelp(fullCom, pathToCom)
+			return
+		}
+	}
 
-			if helpStr != "" {
-				fmt.Println(helpStr)
+	if fullCom.Action == nil {
+		tree.ShowHelp(fullCom, pathToCom)
+	} else {
+		if tree.Shared.PreAction != nil {
+			err = tree.Shared.PreAction(userCom)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
 			}
-			return nil
+		}
+		if fullCom.Action != nil {
+			err = fullCom.Action(userCom)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+		}
+		if tree.Shared.PostAction != nil {
+			err = tree.Shared.PostAction(userCom)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
 		}
 	}
-	if tree.Shared.PreAction != nil {
-		tree.Shared.PreAction(userCom)
-		if err != nil {
-			return err
-		}
+
+	return
+}
+
+func (t CommandTree) ShowHelp(c Command, pathToCom []string) {
+	helpStr := ""
+	if t.ToHelpString != nil {
+		helpStr = t.ToHelpString(c, pathToCom)
 	}
-	if fullCom.Action != nil {
-		fullCom.Action(userCom)
-		if err != nil {
-			return err
-		}
+
+	if helpStr != "" {
+		fmt.Println(helpStr)
 	}
-	if tree.Shared.PostAction != nil {
-		tree.Shared.PostAction(userCom)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 /*
@@ -318,19 +331,17 @@ func PrintTree(c *Command) {
 }
 
 // For the case of mul
-func PrintTreeHelp(t *CommandTree) {
-	slice := CommandToNodeSlice(&t.Root)
+func PrintTreeHelp(c *Command) {
+	slice := CommandToNodeSlice(c)
 
 	for _, node := range slice {
 		fmt.Printf("--------------------------------------------\n")
-		fmt.Printf("\"\n%s\"\n", t.ToHelpString(node.Command, node.PathToCom))
+		fmt.Printf("\"%s\"\n", ToHelpString(node.Command, node.PathToCom))
 	}
 }
 
 func addChildrenToSlice(n *Node, slice *[]Node) {
-	pathToNode := append([]string(nil), n.PathToCom...)
-	pathToNode = append(pathToNode, n.Name)
-
+	pathToNode := append(n.PathToCom, n.Name)
 	subCount := len(n.SubCommands)
 	for i := 0; i < subCount; i++ {
 		child := Node{n.SubCommands[i], n.Level + 1, pathToNode} // pointer to a command
