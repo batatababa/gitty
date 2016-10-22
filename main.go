@@ -14,6 +14,22 @@ import (
 type config struct {
 	appFolder string
 	appDir    string
+	comTree   cli.CommandTree
+	repos     string
+}
+
+var globals config
+
+// func toStringArray(s string) []string {
+// 	return strings.Split(s, " ")
+// }
+
+func main() {
+	globals = newConfig()
+	initGitty(&globals)
+
+	cli.Run(os.Args, &globals.comTree)
+	// runCli(toStringArray("gitty repo -h"))
 }
 
 func newConfig() (c config) {
@@ -25,54 +41,31 @@ func newConfig() (c config) {
 	}
 
 	c.appDir = usr.HomeDir + "/" + c.appFolder
+	c.repos = c.appDir + "/repos"
 	return c
 }
 
-var globals config
-
-func initGitty(c config) {
+func initGitty(c *config) {
 	if _, err := os.Stat(c.appDir); os.IsNotExist(err) {
 		if os.Mkdir(c.appDir, 0755) != nil {
 			fmt.Println("Unable to create Gitty directory")
 		}
 	}
-}
+	c.comTree = cli.NewCommandTree()
+	c.comTree.Author = "Jeff Williams"
+	c.comTree.ToHelpString = toHelpString
 
-// Gitty command
-var Gitty = cli.Command{
-	Name:        "gitty",
-	Description: "Making git fun :)",
-	SubCommands: []cli.Command{
-		clone,
-		repo,
-		branch,
-		branchMap,
-		changelist,
-	},
-}
-
-func main() {
-	globals = newConfig()
-	initGitty(globals)
-
-	runCli(os.Args)
-	// runCli(toStringArray("gitty repo -h"))
-}
-
-func runCli(s []string) {
-	tree := cli.NewCommandTree()
-	tree.Author = "Jeff Williams"
-	tree.Root = Gitty
-	tree.ToHelpString = toHelpString
-
-	//err := cli.Run(strings.Split("gitty repo adsfasdf", " "), &tree)
-	//cli.PrintTree(&tree.Root)
-
-	cli.Run(s, &tree)
-}
-
-func toStringArray(s string) []string {
-	return strings.Split(s, " ")
+	c.comTree.Root = cli.Command{
+		Name:        "gitty",
+		Description: "Making git fun :)",
+		SubCommands: []cli.Command{
+			clone,
+			repo,
+			branch,
+			branchMap,
+			changelist,
+		},
+	}
 }
 
 func toHelpString(c cli.Command, pathToRoot []string) (help string) {
