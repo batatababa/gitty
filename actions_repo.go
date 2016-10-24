@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/batatababa/cli"
 	"github.com/libgit2/git2go"
@@ -34,7 +35,7 @@ func action_repoAdd(c cli.Command) (err error) {
 		return errGitty("Could not open " + globals.repos)
 	}
 
-	_, err = fileContains(f, repoDir)
+	_, err = fileLineEquals(f, repoDir)
 	if err == io.EOF {
 		if _, err = f.WriteString(repoDir + "\n"); err != nil {
 			return errGitty("Could not write to " + globals.repos)
@@ -49,7 +50,23 @@ func action_repoAdd(c cli.Command) (err error) {
 }
 
 func action_repoRemove(c cli.Command) (err error) {
-	fmt.Println("todo: repoRemove")
+	err = verifyArgCountEqual(c.Args, 1)
+	if err != nil {
+		return err
+	}
+
+	f, err := fileGet(globals.repos, os.O_APPEND|os.O_RDWR)
+
+	if repoNum, err := strconv.Atoi(c.Args[0].Value); err == nil {
+		if err = fileRemoveLineNumber(f, repoNum); err != nil {
+			return errGitty("Could not open " + globals.repos)
+		}
+	} else {
+		repoDir := c.Args[0].Value
+		if err = fileRemoveContaining(f, repoDir); err != nil {
+			return errGitty(err.Error()) //"Could not write to " + globals.repos)
+		}
+	}
 
 	return err
 }
