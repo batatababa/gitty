@@ -1,6 +1,7 @@
 package futil
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -100,4 +101,22 @@ func (v *fvector) At(index int) (s string, err error) {
 
 func (v *fvector) Size() (size int) {
 	return v.length
+}
+
+func (v *fvector) Slice() (sl []string, err error) {
+	sl = make([]string, 0, 20)
+
+	scanner := bufio.NewScanner(v.file)
+
+	if _, err = v.file.Seek(0, 0); err != nil {
+		return nil, err
+	}
+
+	for scanner.Scan() {
+		text := scanner.Text()
+		sl = append(sl, text)
+	}
+	err = scanner.Err()
+
+	return sl, err
 }

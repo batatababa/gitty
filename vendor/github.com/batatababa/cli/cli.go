@@ -256,7 +256,7 @@ func parseLongForm(predicate []string, pos int, c Command, userCom *Command) (ne
 		}
 		pos++
 	} else {
-		errStr := fmt.Sprintf("cli: Long form input --%s not found", argStr)
+		errStr := fmt.Sprintf("cli: Option/Flag --%s not found", argStr)
 		return newPos, errors.New(errStr)
 	}
 	newPos = pos
@@ -278,7 +278,7 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 					userCom.Flags = append(userCom.Flags, f)
 				}
 			} else {
-				errStr := fmt.Sprintf("cli: Short form input -%s is too Long", argStr)
+				errStr := fmt.Sprintf("cli: Flag -%s is too Long", argStr)
 				err = errors.New(errStr)
 				return newPos, err
 			}
@@ -303,7 +303,7 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 			}
 			pos++
 		} else {
-			errStr := fmt.Sprintf("cli: Short form input -%s not found", argStr)
+			errStr := fmt.Sprintf("cli: Flag -%s not found", argStr)
 			err = errors.New(errStr)
 			return newPos, err
 		}
