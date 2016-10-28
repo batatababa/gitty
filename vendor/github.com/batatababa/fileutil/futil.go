@@ -9,6 +9,11 @@ import (
 func ContainsLine(f *os.File, s string) (lineNum int, err error) {
 	// Splits on newlines by default.
 	scanner := bufio.NewScanner(f)
+
+	if _, err = f.Seek(0, 0); err != nil {
+		return 0, err
+	}
+
 	lineNum = 1
 
 	for scanner.Scan() {
@@ -28,8 +33,49 @@ func ContainsLine(f *os.File, s string) (lineNum int, err error) {
 	return lineNum, err
 }
 
+func GetLine(f *os.File, lineNum int) (s string, err error) {
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(f)
+
+	if _, err = f.Seek(0, 0); err != nil {
+		return "", err
+	}
+
+	curLineNum := 0
+	for scanner.Scan() {
+		if curLineNum == lineNum {
+			err = scanner.Err()
+			s = scanner.Text()
+			return s, err
+		}
+		curLineNum++
+	}
+
+	err = scanner.Err()
+
+	return s, err
+}
+
+func GetLineCount(f *os.File) (lineCount int, err error) {
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(f)
+	lineCount = 0
+
+	if _, err = f.Seek(0, 0); err != nil {
+		return lineCount, err
+	}
+
+	for scanner.Scan() {
+		lineCount++
+	}
+
+	err = scanner.Err()
+
+	return lineCount, err
+}
+
 func GetFile(filePath string) (f *os.File, err error) {
-	return os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_APPEND|O_TRUNC, 0600)
+	return os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_APPEND|os.O_SYNC, 0600)
 }
 
 func AppendFile(f *os.File, s string) (err error) {
@@ -38,32 +84,30 @@ func AppendFile(f *os.File, s string) (err error) {
 	if appendEnabled != 0 {
 		f.Seek(0, 2)
 	}
-	_, err = f.WriteString(s)
+	_, err = f.WriteString(s + "\n")
+	f.Sync()
 	return err
 }
 
 func ClearFile(f *os.File) (err error) {
-	filePath := f.Name()
-
-	if err = os.Remove(filePath); err != nil {
-		return nil
+	if err = f.Truncate(0); err != nil {
+		f.Sync()
+		return err
 	}
-
-	f, err = Get(filePath)
-
+	err = f.Sync()
 	return err
 }
 
 func RemoveLineNumber(f *os.File, lineNum int) (removed string, err error) {
-	linesFound := 1
-	ScanReplace(f, func(line *string) error {
+	linesFound := 0
+	err = ScanReplace(f, func(line *string) error {
 		if lineNum == linesFound {
 			removed = *line
 			*line = ""
 		}
 		linesFound++
 
-		return err
+		return nil
 	})
 
 	return removed, err
@@ -71,7 +115,7 @@ func RemoveLineNumber(f *os.File, lineNum int) (removed string, err error) {
 
 func RemoveContaining(f *os.File, s string) (err error) {
 
-	ScanReplace(f, func(line *string) error {
+	err = ScanReplace(f, func(line *string) error {
 		if *line == s {
 			*line = ""
 		}
@@ -87,12 +131,18 @@ func ScanReplace(f *os.File, op func(line *string) error) (err error) {
 	tempFilePath := filePath + "_temp"
 
 	scanner := bufio.NewScanner(f)
-	os.Remove(tempFilePath)
-	tempFile, err := Get(tempFilePath)
+	if _, err = f.Seek(0, 0); err != nil {
+		return err
+	}
 
+	tempFile, err := GetFile(tempFilePath)
 	if err != nil {
 		return err
 	}
+
+	ClearFile(tempFile)
+
+	tempWriter := bufio.NewWriter(tempFile)
 
 	for scanner.Scan() {
 		text := scanner.Text()
@@ -103,7 +153,7 @@ func ScanReplace(f *os.File, op func(line *string) error) (err error) {
 		}
 
 		if text != "" {
-			tempFile.WriteString(text + "\n")
+			tempWriter.WriteString(text + "\n")
 		}
 	}
 
@@ -111,13 +161,20 @@ func ScanReplace(f *os.File, op func(line *string) error) (err error) {
 		return err
 	}
 
-	// if err = os.Remove(filePath); err != nil {
-	// 	return err
-	// }
+	tempWriter.Flush()
+	tempFile.Close()
+	f.Close()
 
-	// if err = os.Rename(tempFilePath, filePath); err != nil {
-	// 	return err
-	// }
+	if err = os.Remove(filePath); err != nil {
+		return err
+	}
+
+	if err = os.Rename(tempFilePath, filePath); err != nil {
+		return err
+	}
+
+	tempFile, err = GetFile(filePath)
+	*f = *tempFile
 
 	return err
 }
