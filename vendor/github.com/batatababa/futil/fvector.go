@@ -2,6 +2,7 @@ package futil
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -59,7 +60,18 @@ func (v *fvector) RemoveAt(index int) (removed string, err error) {
 }
 
 func (v *fvector) Contains(s string) (found bool, err error) {
-	return found, err
+	if s == "" {
+		return false, fmt.Errorf("Invalid contains string, the empty string")
+	}
+	_, err = ContainsLine(v.file, s)
+
+	if err == io.EOF {
+		return false, nil
+	} else if err != nil && err != io.EOF {
+		return false, err
+	} else {
+		return true, nil
+	}
 }
 
 func (v *fvector) Trim() (err error) {

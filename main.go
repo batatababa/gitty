@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/batatababa/cli"
-	"github.com/batatababa/fileutil"
 	"github.com/ryanuber/columnize"
 )
 
@@ -26,26 +25,11 @@ var globals config
 // }
 
 func main() {
+	globals = newConfig()
+	initGitty(&globals)
 
-	var testPath = "/tmp/fvectorBacking"
-	v, _ := futil.NewFVector(testPath)
-	v.Clear()
-
-	s1 := "test string 1"
-	s2 := "test string 2"
-	s3 := "test string 3"
-	v.Add(s1)
-	v.Add(s2)
-	v.Add(s3)
-
-	v.RemoveAt(0)
-	v.RemoveAt(0)
-
-	//globals = newConfig()
-	//initGitty(&globals)
-	//
-	//cli.Run(os.Args, &globals.comTree)
-	// runCli(toStringArray("gitty repo -h"))
+	cli.Run(os.Args, &globals.comTree)
+	// cli.Run(toStringArray("gitty repo -h"))
 }
 
 func newConfig() (c config) {

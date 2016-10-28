@@ -125,6 +125,49 @@ func TestFVectorRemoveString(t *testing.T) {
 	}
 }
 
+func TestFVectorContains(t *testing.T) {
+	v, _ := NewFVector(testPath)
+	v.Clear()
+
+	assertFVectorLen(t, v, 0)
+
+	s1 := "test string 1"
+	s2 := "test string 2"
+	s3 := "test string 3"
+	v.Add(s1)
+	v.Add(s2)
+	v.Add(s3)
+
+	found, err := v.Contains(s1)
+	checkErr(t, err)
+	if found == false {
+		failTest(t, "TestFVectorContains: should be found")
+	}
+
+	found, err = v.Contains(s2)
+	checkErr(t, err)
+	if found == false {
+		failTest(t, "TestFVectorContains: should be found")
+	}
+	found, err = v.Contains(s3)
+	checkErr(t, err)
+	if found == false {
+		failTest(t, "TestFVectorContains: should be found")
+	}
+
+	found, err = v.Contains("afdsf")
+	checkErr(t, err)
+	if found == true {
+		failTest(t, "TestFVectorContains: should be Not be found")
+	}
+
+	_, err = v.Contains("")
+	if err == nil {
+		failTest(t, "TestFVectorContains: should fail on empty string")
+	}
+
+}
+
 func assertStringEqual(t *testing.T, s1 string, s2 string, msg string) {
 	if s1 != s2 {
 		if msg == "" {
