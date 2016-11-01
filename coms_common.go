@@ -8,6 +8,11 @@ var arg_urlOrPath = cli.Argument{
 	Description: "Url or Path of an existing Git repo",
 }
 
+var arg_srcPath = cli.Argument{
+	Name:        "path",
+	Description: "Path of existing source",
+}
+
 var arg_changelist = cli.Argument{
 	Name:        "cl-num",
 	Description: "Locally unique identifier of a changelist",

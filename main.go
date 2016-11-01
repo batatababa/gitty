@@ -59,7 +59,6 @@ func initGitty(c *config) {
 		Name:        "gitty",
 		Description: "Making git fun :)",
 		SubCommands: []cli.Command{
-			clone,
 			repo,
 			branch,
 			branchMap,

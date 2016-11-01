@@ -9,6 +9,12 @@
 			"revisionTime": "2016-09-18T15:38:40Z"
 		},
 		{
+			"checksumSHA1": "9gHjUYzL5gTavn7a4O9x6Qs7Q34=",
+			"path": "github.com/libgit2/git2go",
+			"revision": "241aa34d83b210ceaab7029c46e05794f2ea9797",
+			"revisionTime": "2016-08-27T19:03:29Z"
+		},
+		{
 			"checksumSHA1": "kH9SzL77hzya1KSvkkVfGmbBtmM=",
 			"path": "github.com/ryanuber/columnize",
 			"revision": "983d3a5fab1bf04d1b412465d2d9f8430e2e917e",

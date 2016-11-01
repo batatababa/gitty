@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,46 @@ func trimPath(p string) string {
 	return p
 }
 
-func action_clone(c cli.Command) (err error) {
+func action_repoClone(c cli.Command) (err error) {
+	err = verifyArgCountEqual(c.Args, 1)
+	if err != nil {
+		return err
+	}
+	url := c.Args[0].Value
+
+	if strings.HasPrefix(url, "http") || strings.HasPrefix(url, "ftp") {
+		url = strings.TrimSuffix(url, ".git")
+	} else {
+		url = strings.TrimRight(url, "/")
+	}
+
+	_, filename := filepath.Split(url)
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	path := pwd + "/" + filename
+	fmt.Println(path)
+
+	opts := git.CloneOptions{
+		Bare: false,
+	}
+	_, err = git.Clone(url, path, &opts)
+
+	return err
+}
+
+func action_repoInit(c cli.Command) (err error) {
+	err = verifyArgCountEqual(c.Args, 1)
+	if err != nil {
+		return err
+	}
+
+	path := strings.TrimRight(c.Args[0].Value, "/")
+	_, err = git.InitRepository(path, false)
+
 	return err
 }
 
@@ -28,7 +68,6 @@ func action_repoAdd(c cli.Command) (err error) {
 	}
 
 	repoDir := trimPath(c.Args[0].Value)
-	fmt.Println(repoDir)
 
 	if fileInfo, err := os.Stat(repoDir); os.IsNotExist(err) || fileInfo.IsDir() == false {
 		return errGitty(repoDir + " is not a directory")

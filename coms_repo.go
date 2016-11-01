@@ -3,22 +3,29 @@ package main
 import "github.com/batatababa/cli"
 
 /* Command Sets */
-var clone = cli.Command{
-	Name:        "clone",
-	Description: "Copies a Git repo from a server. Does this give a default workspace?",
-	Args:        []cli.Argument{arg_urlOrPath},
-	Action:      action_clone,
-}
-
 var repo = cli.Command{
 	Name:        "repo",
 	Description: "Add and remove repos from Gitty control",
-	SubCommands: []cli.Command{repo_add, repo_remove, repo_active},
+	SubCommands: []cli.Command{repo_init, repo_clone, repo_add, repo_remove, repo_active},
 	Args:        []cli.Argument{arg_repo_rtnShowAll},
 	Action:      action_repoShow,
 }
 
 /* Commands */
+var repo_init = cli.Command{
+	Name:        "init",
+	Description: "Create a Git repo from source",
+	Args:        []cli.Argument{arg_srcPath},
+	Action:      action_repoInit,
+}
+
+var repo_clone = cli.Command{
+	Name:        "clone",
+	Description: "Copies a Git repo from a server. Does this give a default workspace?",
+	Args:        []cli.Argument{arg_urlOrPath},
+	Action:      action_repoClone,
+}
+
 var repo_add = cli.Command{
 	Name:        "add",
 	Description: "Registers a repo with Gitty",
