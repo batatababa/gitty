@@ -12,10 +12,11 @@ import (
 )
 
 type config struct {
-	appFolder string
-	appDir    string
-	comTree   cli.CommandTree
-	repos     string
+	appFolder  string
+	appDir     string
+	comTree    cli.CommandTree
+	repos      string
+	activeRepo string
 }
 
 var globals config
@@ -42,6 +43,7 @@ func newConfig() (c config) {
 
 	c.appDir = usr.HomeDir + "/" + c.appFolder
 	c.repos = c.appDir + "/repos"
+	c.activeRepo = c.appDir + "/active_repo"
 	return c
 }
 

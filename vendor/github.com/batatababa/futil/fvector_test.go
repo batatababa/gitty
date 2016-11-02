@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var testPath = "/tmp/fvectorBacking"
+var testPath = "/tmp/FVectorBacking"
 
 func TestFVectorAdd(t *testing.T) {
 	v, err := NewFVector(testPath)
@@ -184,7 +184,7 @@ func failTest(t *testing.T, msg string) {
 	os.Exit(1)
 }
 
-func assertFVectorLen(t *testing.T, v fvector, val int) {
+func assertFVectorLen(t *testing.T, v FVector, val int) {
 	length, err := GetLineCount(v.file)
 	checkErr(t, err)
 	assertIntEqual(t, v.Size(), val, "")

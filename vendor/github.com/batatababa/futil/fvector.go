@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-type fvector struct {
+type FVector struct {
 	path   string
 	file   *os.File
 	length int
 }
 
-func NewFVector(path string) (v fvector, err error) {
+func NewFVector(path string) (v FVector, err error) {
 	v.path = path
 	if v.file, err = GetFile(path); err != nil {
 		return v, err
@@ -26,7 +26,7 @@ func NewFVector(path string) (v fvector, err error) {
 	return v, err
 }
 
-func (v *fvector) Add(s string) (err error) {
+func (v *FVector) Add(s string) (err error) {
 	v.length++
 	err = AppendFile(v.file, s)
 	if err != nil {
@@ -35,7 +35,7 @@ func (v *fvector) Add(s string) (err error) {
 	return err
 }
 
-func (v *fvector) Remove(s string) (err error) {
+func (v *FVector) Remove(s string) (err error) {
 	if v.length == 0 {
 		return fmt.Errorf("Can't remove from empty vector.")
 	}
@@ -47,7 +47,7 @@ func (v *fvector) Remove(s string) (err error) {
 	return err
 }
 
-func (v *fvector) RemoveAt(index int) (removed string, err error) {
+func (v *FVector) RemoveAt(index int) (removed string, err error) {
 	if index >= v.length || index < 0 {
 		return "", fmt.Errorf("Invalid remove index, %d", index)
 	}
@@ -60,7 +60,7 @@ func (v *fvector) RemoveAt(index int) (removed string, err error) {
 	return removed, err
 }
 
-func (v *fvector) Contains(s string) (found bool, err error) {
+func (v *FVector) Contains(s string) (found bool, err error) {
 	if s == "" {
 		return false, fmt.Errorf("Invalid contains string, the empty string")
 	}
@@ -75,7 +75,7 @@ func (v *fvector) Contains(s string) (found bool, err error) {
 	}
 }
 
-func (v *fvector) Trim() (err error) {
+func (v *FVector) Trim() (err error) {
 	ScanReplace(v.file, func(line *string) error {
 		*line = strings.TrimSpace(*line)
 		return nil
@@ -84,7 +84,7 @@ func (v *fvector) Trim() (err error) {
 	return err
 }
 
-func (v *fvector) Clear() (err error) {
+func (v *FVector) Clear() (err error) {
 	v.length = 0
 	err = ClearFile(v.file)
 	if err != nil {
@@ -94,16 +94,16 @@ func (v *fvector) Clear() (err error) {
 	return err
 }
 
-func (v *fvector) At(index int) (s string, err error) {
+func (v *FVector) At(index int) (s string, err error) {
 	s, err = GetLine(v.file, index)
 	return s, err
 }
 
-func (v *fvector) Size() (size int) {
+func (v *FVector) Size() (size int) {
 	return v.length
 }
 
-func (v *fvector) Slice() (sl []string, err error) {
+func (v *FVector) Slice() (sl []string, err error) {
 	sl = make([]string, 0, 20)
 
 	scanner := bufio.NewScanner(v.file)

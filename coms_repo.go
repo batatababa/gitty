@@ -43,7 +43,7 @@ var repo_remove = cli.Command{
 var repo_active = cli.Command{
 	Name:        "active",
 	Description: "Set which Repo is actively managed by gitty",
-	Args:        []cli.Argument{arg_repoNum},
+	Args:        []cli.Argument{arg_repoNum, arg_repo_rtnShowActive},
 	Action:      action_repoActive,
 }
 
@@ -51,4 +51,9 @@ var repo_active = cli.Command{
 var arg_repo_rtnShowAll = cli.Argument{
 	Name:        "rtn",
 	Description: "(Carriage Return) Show all repos that gitty can see",
+}
+
+var arg_repo_rtnShowActive = cli.Argument{
+	Name:        "rtn",
+	Description: "(Carriage Return) Show the active repo",
 }

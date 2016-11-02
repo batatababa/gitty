@@ -50,12 +50,17 @@ func action_repoClone(c cli.Command) (err error) {
 }
 
 func action_repoInit(c cli.Command) (err error) {
-	err = verifyArgCountEqual(c.Args, 1)
+	var path = ""
+	err = verifyArgCountLessThan(c.Args, 2)
 	if err != nil {
 		return err
 	}
 
-	path := strings.TrimRight(c.Args[0].Value, "/")
+	if len(c.Args) > 0 {
+		path = strings.TrimRight(c.Args[0].Value, "/")
+	} else {
+		path, err = os.Getwd()
+	}
 	_, err = git.InitRepository(path, false)
 
 	return err
@@ -116,7 +121,7 @@ func action_repoRemove(c cli.Command) (err error) {
 	} else {
 		repoDir := trimPath(c.Args[0].Value)
 		if err = v.Remove(repoDir); err != nil {
-			return errGitty(err.Error()) //"Could not write to " + globals.repos)
+			return errGitty(err.Error())
 		}
 	}
 
@@ -124,7 +129,72 @@ func action_repoRemove(c cli.Command) (err error) {
 }
 
 func action_repoActive(c cli.Command) (err error) {
-	fmt.Println("todo: repoActive")
+	repoDir := ""
+	err = verifyArgCountLessThan(c.Args, 2)
+	if err != nil {
+		return err
+	}
+
+	if len(c.Args) == 0 {
+		if err = action_repoActiveShow(); err != nil {
+			return errGitty(err.Error())
+		}
+	} else {
+		vRepos, err := futil.NewFVector(globals.repos)
+		if err != nil {
+			return errGitty("Could not open " + globals.repos)
+		}
+
+		if repoNum, err := strconv.Atoi(c.Args[0].Value); err == nil {
+			if repoDir, err = vRepos.At(repoNum); err != nil {
+				return errGitty("Could not remove repo #" + c.Args[0].Value)
+			}
+		} else {
+			repoDir = trimPath(c.Args[0].Value)
+			found, err := vRepos.Contains(repoDir)
+			if err != nil {
+				return errGitty(err.Error())
+			}
+			if found == false {
+				return errGitty("Could not find repo, " + repoDir)
+			}
+		}
+
+		vActiveRepo, err := futil.NewFVector(globals.activeRepo)
+		if err != nil {
+			return errGitty("Could not open " + globals.activeRepo)
+		}
+
+		err = vActiveRepo.Clear()
+		if err != nil {
+			return errGitty("Could not set the active repo")
+		}
+
+		if err = vActiveRepo.Add(repoDir); err != nil {
+			return errGitty(err.Error())
+		}
+	}
+
+	return err
+}
+
+func action_repoActiveShow() (err error) {
+	v, err := futil.NewFVector(globals.activeRepo)
+	if err != nil {
+		return errGitty("Could not open " + globals.activeRepo)
+	}
+
+	if v.Size() == 0 {
+		fmt.Println("No active repo")
+	} else {
+		active, err := v.At(0)
+		if err != nil {
+
+		} else {
+			fmt.Println("Active Repo: " + active)
+		}
+	}
+
 	return err
 }
 
