@@ -4,47 +4,22 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"os/user"
 	"strings"
 
 	"github.com/batatababa/cli"
 	"github.com/ryanuber/columnize"
 )
 
-type config struct {
-	appFolder  string
-	appDir     string
-	comTree    cli.CommandTree
-	repos      string
-	activeRepo string
+func toStringArray(s string) []string {
+	return strings.Split(s, " ")
 }
-
-var globals config
-
-// func toStringArray(s string) []string {
-// 	return strings.Split(s, " ")
-// }
 
 func main() {
 	globals = newConfig()
 	initGitty(&globals)
 
 	cli.Run(os.Args, &globals.comTree)
-	// cli.Run(toStringArray("gitty repo -h"))
-}
-
-func newConfig() (c config) {
-	c.appFolder = ".gitty"
-
-	usr, err := user.Current()
-	if err != nil {
-		os.Exit(1)
-	}
-
-	c.appDir = usr.HomeDir + "/" + c.appFolder
-	c.repos = c.appDir + "/repos"
-	c.activeRepo = c.appDir + "/active_repo"
-	return c
+	// cli.Run(toStringArray("gitty branch"), &globals.comTree)
 }
 
 func initGitty(c *config) {

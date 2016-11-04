@@ -43,7 +43,7 @@ var autoHelpArg = Argument{
 	Description: "Show help",
 }
 
-func Run(appArgs []string, tree *CommandTree) {
+func Run(appArgs []string, tree *CommandTree) (err error) {
 	if tree.AutoHelp {
 		tree.Shared.Args = append(tree.Shared.Args, autoHelpArg)
 		tree.Shared.Flags = append(tree.Shared.Flags, autoHelpFlag)
@@ -52,8 +52,7 @@ func Run(appArgs []string, tree *CommandTree) {
 	fullCom, pathToCom, err := tree.FindCommand(appArgs)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	fullCom.Flags = append(fullCom.Flags, tree.Shared.Flags...)
@@ -64,49 +63,42 @@ func Run(appArgs []string, tree *CommandTree) {
 	userCom, err := ParseArgs(appArgs, fullCom)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 
 	if tree.AutoHelp && !userCom.HideHelp {
 		if userCom.hasFlag(autoHelpFlag.ShortName) || userCom.hasFlag(autoHelpFlag.LongName) || userCom.hasArg(autoHelpArg.Value) {
-			tree.ShowHelp(fullCom, pathToCom)
-			return
+			showHelp(tree, fullCom, pathToCom)
+			return nil
 		}
 	}
 
 	if fullCom.Action == nil {
-		tree.ShowHelp(fullCom, pathToCom)
+		showHelp(tree, fullCom, pathToCom)
 	} else {
 		if tree.Shared.PreAction != nil {
-			err = tree.Shared.PreAction(userCom)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
+			if err = tree.Shared.PreAction(userCom); err != nil {
+				return err
 			}
 		}
-		if fullCom.Action != nil {
-			err = fullCom.Action(userCom)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
+		if err = fullCom.Action(userCom); err != nil {
+			return err
 		}
 		if tree.Shared.PostAction != nil {
-			err = tree.Shared.PostAction(userCom)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
+			if err = tree.Shared.PostAction(userCom); err != nil {
+				return err
 			}
 		}
 	}
 
-	return
+	return nil
 }
 
-func (t CommandTree) ShowHelp(c Command, pathToCom []string) {
+func showHelp(t *CommandTree, c Command, pathToCom []string) {
 	helpStr := ""
-	if t.ToHelpString != nil {
+	if t.ToHelpString == nil {
+		helpStr = ToHelpString(c, pathToCom)
+	} else {
 		helpStr = t.ToHelpString(c, pathToCom)
 	}
 
@@ -256,7 +248,7 @@ func parseLongForm(predicate []string, pos int, c Command, userCom *Command) (ne
 		}
 		pos++
 	} else {
-		errStr := fmt.Sprintf("cli: Option/Flag --%s not found", argStr)
+		errStr := fmt.Sprintf("cli: Long form input --%s not found", argStr)
 		return newPos, errors.New(errStr)
 	}
 	newPos = pos
@@ -278,7 +270,7 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 					userCom.Flags = append(userCom.Flags, f)
 				}
 			} else {
-				errStr := fmt.Sprintf("cli: Flag -%s is too Long", argStr)
+				errStr := fmt.Sprintf("cli: Short form input -%s is too Long", argStr)
 				err = errors.New(errStr)
 				return newPos, err
 			}
@@ -303,7 +295,7 @@ func parseShortForm(predicate []string, pos int, c Command, userCom *Command) (n
 			}
 			pos++
 		} else {
-			errStr := fmt.Sprintf("cli: Flag -%s not found", argStr)
+			errStr := fmt.Sprintf("cli: Short form input -%s not found", argStr)
 			err = errors.New(errStr)
 			return newPos, err
 		}
